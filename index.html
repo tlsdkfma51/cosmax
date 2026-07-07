@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>브리프드래프트 BriefDraft</title>
+<style>
+  :root {
+    --main: #0F172A;
+    --main-dark: #020617;
+    --main-tint: rgba(15, 23, 42, 0.08);
+    --secondary: #64748B;
+    --secondary-dark: #475569;
+    --accent: #A78D6D;
+    --accent-tint: rgba(167, 141, 109, 0.14);
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --ink: #1E293B;
+    --ink-soft: #94A3B8;
+    --line: #E2E8F0;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+      "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 36px 24px 90px;
+    min-height: 100vh;
+  }
+
+  header { margin-bottom: 28px; }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .logo-mark {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark::after {
+    content: "";
+    width: 13px;
+    height: 10px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    border-right: 2px solid #fff;
+    border-radius: 0 0 2px 2px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+    line-height: 1;
+  }
+
+  .logo-primary { color: var(--ink); }
+
+  .logo-secondary {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  header .tagline {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0;
+    line-height: 1.6;
+    max-width: 620px;
+  }
+
+  .layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  @media (min-width: 900px) {
+    .layout {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 32px;
+    }
+    .input-panel {
+      flex: 0 0 400px;
+      position: sticky;
+      top: 28px;
+    }
+    .result-panel {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 18px;
+    margin-bottom: 16px;
+  }
+
+  .btn-sample {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    border: 1.5px dashed var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 11px 0;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 16px;
+  }
+
+  .btn-sample:active { background: rgba(167, 141, 109, 0.22); }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .field-label .optional {
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-left: 4px;
+  }
+
+  textarea,
+  .field input[type="text"] {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--ink);
+    outline: none;
+    background: var(--surface);
+    resize: vertical;
+  }
+
+  textarea::placeholder,
+  .field input[type="text"]::placeholder { color: var(--ink-soft); }
+
+  textarea:focus,
+  .field input[type="text"]:focus { border-color: var(--main); }
+
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .chip.active {
+    background: var(--main);
+    border-color: var(--main);
+    color: #fff;
+  }
+
+  .color-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    gap: 6px;
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 14px 5px 5px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .color-chip.active {
+    border-color: var(--main);
+    color: var(--ink);
+    background: var(--main-tint);
+  }
+
+  .color-swatch {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+  }
+
+  .color-swatch.clear { border: 1.5px dashed var(--ink-soft); }
+
+  .btn-primary {
+    width: 100%;
+    min-height: 44px;
+    border: none;
+    background: var(--main);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 0;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:active { background: var(--main-dark); }
+  .btn-primary:disabled { background: var(--secondary); cursor: default; }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .btn-outline {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 11px 0;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  .btn-outline:active { border-color: var(--main); color: var(--main); }
+
+  .view-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .view-tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  .view-tab-btn.active {
+    background: var(--main);
+    border-color: var(--main);
+    color: #fff;
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+
+  .section-sub {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+
+  .result-block { margin-bottom: 28px; }
+
+  .spec-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .spec-card-image {
+    flex: 0 0 72px;
+    width: 72px;
+    height: 90px;
+  }
+
+  .spec-card-image svg { display: block; width: 100%; height: 100%; }
+
+  .spec-card-rows { flex: 1; min-width: 0; }
+
+  .concept-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .concept-card-image {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 65px;
+  }
+
+  .concept-card-image svg { display: block; width: 100%; height: 100%; }
+
+  .concept-card-body { flex: 1; min-width: 0; }
+
+  .concept-card-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .concept-index {
+    flex: 0 0 auto;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-tint);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  .concept-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .concept-oneliner {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+
+  .concept-copy {
+    display: inline-block;
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--main);
+    background: var(--main-tint);
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .concept-sub-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 10px 0 3px;
+  }
+
+  .concept-sub-text {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .concept-spec-note {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+  }
+
+  .concept-selling-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .concept-selling-list li {
+    position: relative;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    padding-left: 14px;
+    margin-bottom: 4px;
+  }
+
+  .concept-selling-list li::before {
+    content: "\2022";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .concept-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .concept-tag {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--secondary-dark);
+    background: rgba(100, 116, 139, 0.12);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  .persona-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .persona-row {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  .persona-row:not(:last-child) { border-bottom: 1px dashed var(--line); }
+
+  .persona-key {
+    flex: 0 0 84px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  .persona-val { flex: 1; color: var(--ink); }
+
+  .ingredient-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  @media (min-width: 700px) {
+    .ingredient-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .ingredient-item:nth-last-child(2) { border-bottom: none; }
+  }
+
+  .ingredient-item {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .ingredient-item:not(:last-child) { border-bottom: 1px solid var(--line); }
+
+  .ingredient-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 6px;
+  }
+
+  .ingredient-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .ingredient-effect {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+
+  table.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    min-width: 480px;
+  }
+
+  table.compare-table th,
+  table.compare-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    line-height: 1.45;
+    white-space: normal;
+  }
+
+  table.compare-table th {
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-weight: 700;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+
+  table.compare-table tr:last-child td { border-bottom: none; }
+
+  table.compare-table td.our-row-cell { font-weight: 700; color: var(--main); }
+
+  .our-row { background: var(--main-tint); }
+
+  .disclaimer {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .full-text-article {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px 26px;
+  }
+
+  .full-text-article h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 22px 0 8px;
+  }
+
+  .full-text-article h3:first-child { margin-top: 0; }
+
+  .full-text-article p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink);
+    margin: 0 0 10px;
+  }
+
+  .empty-result {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    padding: 60px 0;
+    border: 1.5px dashed var(--line);
+    border-radius: 16px;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 0);
+    background: var(--ink);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 12px;
+    z-index: 50;
+    animation: toast-in-out 2s ease forwards;
+    white-space: nowrap;
+  }
+
+  @keyframes toast-in-out {
+    0% { opacity: 0; transform: translate(-50%, 8px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    85% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, 8px); }
+  }
+
+  @media (max-width: 480px) {
+    .app { padding: 24px 16px 64px; }
+    body { font-size: 15.5px; }
+    header h1 { font-size: 19px; }
+    header .tagline { font-size: 14px; }
+    .section-title { font-size: 16px; }
+    .section-sub { font-size: 13px; }
+    .field-label { font-size: 13.5px; }
+    .chip, .color-chip { font-size: 13.5px; }
+    .persona-key { flex-basis: 64px; }
+    .persona-key, .persona-val { font-size: 14px; }
+    .concept-title { font-size: 15.5px; }
+    .concept-oneliner, .concept-copy { font-size: 14px; }
+    .concept-sub-text { font-size: 13.5px; }
+    .concept-spec-note { font-size: 12px; }
+    .ingredient-name { font-size: 14px; }
+    .ingredient-effect { font-size: 13.5px; }
+    .disclaimer { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <h1><span class="logo-primary">Brief</span><span class="logo-secondary">Draft</span></h1>
+      </div>
+      <p class="tagline">고객사 브리프를 입력하면 컨셉·타겟·핵심성분·경쟁제품 비교가 담긴 제안서 초안을 자동으로 만들어 드립니다.</p>
+    </header>
+
+    <div class="layout">
+      <div class="input-panel">
+        <button type="button" class="btn-sample" id="sampleBtn">✨ 샘플 데이터로 미리 체험하기</button>
+
+        <div class="card">
+          <div class="field">
+            <label class="field-label" for="projectNameInput">프로젝트명</label>
+            <input type="text" id="projectNameInput" placeholder="예: OO 브랜드 수분크림 리뉴얼" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="briefInput">고객사 브리프 원문</label>
+            <textarea id="briefInput" rows="5" placeholder="예: 30대 직장인 여성을 위한 저자극 수분 크림 라인업을 기획 중입니다. 민감성 피부에도 사용 가능한 진정 성분을 강조하고 싶습니다."></textarea>
+          </div>
+
+          <div class="field">
+            <label class="field-label">제품 카테고리</label>
+            <div class="chip-group" id="categoryPicker"></div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">제품 종류</label>
+            <div class="chip-group" id="typePicker"></div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">제형</label>
+            <div class="chip-group" id="texturePicker"></div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">용기</label>
+            <div class="chip-group" id="containerPicker"></div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">향기</label>
+            <div class="chip-group" id="fragrancePicker"></div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">색상</label>
+            <div class="chip-group" id="colorPicker"></div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="targetInput">타겟 고객 정보</label>
+            <textarea id="targetInput" rows="2" placeholder="예: 25~34세 여성, 수도권 거주, 성분/효능 정보를 꼼꼼히 확인하는 스킨케어 관심층"></textarea>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="competitorInput">참고 경쟁제품명 <span class="optional">(선택, 쉼표로 구분)</span></label>
+            <input type="text" id="competitorInput" placeholder="예: 이니스프리 그린티 수분크림, 라네즈 워터뱅크 크림" autocomplete="off" />
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" id="generateBtn">
+          <span id="generateBtnText">제안서 초안 생성</span>
+        </button>
+      </div>
+
+      <div class="result-panel">
+        <div id="resultSection" style="display:none;">
+          <div class="result-actions">
+            <button type="button" class="btn-outline" id="copyBtn">결과 복사하기</button>
+            <button type="button" class="btn-outline" id="reportBtn">보고서로 보기</button>
+          </div>
+
+          <div class="view-tabs" id="viewTabs">
+            <button type="button" class="view-tab-btn active" data-view="card" id="cardTabBtn">카드로 보기</button>
+            <button type="button" class="view-tab-btn" data-view="full" id="fullTabBtn">전체 글로 보기</button>
+          </div>
+
+          <div id="cardView">
+            <div class="result-block">
+              <h2 class="section-title">제품 스펙 요약</h2>
+              <p class="section-sub">선택한 제형·용기·향·색상을 반영한 예시 이미지입니다.</p>
+              <div class="spec-card" id="specCard"></div>
+            </div>
+
+            <div class="result-block">
+              <h2 class="section-title">컨셉 방향 3안</h2>
+              <p class="section-sub" id="conceptSectionSub">브리프와 타겟, 제품 스펙을 반영한 컨셉 초안입니다. 내부 리뷰 후 확정해 주세요.</p>
+              <div class="concept-cards" id="conceptCards"></div>
+            </div>
+
+            <div class="result-block">
+              <h2 class="section-title">타겟 페르소나 요약</h2>
+              <p class="section-sub">입력한 타겟 정보를 바탕으로 정리한 페르소나입니다.</p>
+              <div class="persona-card" id="personaCard"></div>
+            </div>
+
+            <div class="result-block">
+              <h2 class="section-title">추천 핵심성분</h2>
+              <p class="section-sub">카테고리·타겟 특성에 맞춰 우선 검토할 성분입니다.</p>
+              <ul class="ingredient-list" id="ingredientList"></ul>
+            </div>
+
+            <div class="result-block">
+              <h2 class="section-title">경쟁제품 비교표</h2>
+              <p class="section-sub">참고 제품 대비 포지셔닝을 가늠하기 위한 초안입니다.</p>
+              <div class="table-wrap">
+                <table class="compare-table" id="compareTable"></table>
+              </div>
+              <p class="disclaimer">* 본 초안은 브리프 입력값을 기반으로 자동 생성된 참고용 자료이며, 실제 성분·가격·경쟁 데이터는 별도 확인이 필요합니다.</p>
+            </div>
+          </div>
+
+          <div id="fullTextView" style="display:none;">
+            <article class="full-text-article" id="fullTextArticle"></article>
+          </div>
+        </div>
+
+        <div id="emptyResult" class="empty-result">브리프를 입력하고 버튼을 누르면 제안서 초안이 여기에 표시됩니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastHost"></div>
+
+<script>
+  var CATEGORIES = [
+    { key: 'skincare', label: '스킨케어' },
+    { key: 'haircare', label: '헤어케어' },
+    { key: 'bodycare', label: '바디케어' },
+    { key: 'makeup', label: '메이크업' },
+    { key: 'cleansing', label: '클렌징' },
+    { key: 'derma', label: '더마·기능성' }
+  ];
+
+  var CATEGORY_DATA = {
+    skincare: {
+      concepts: ['수분 배리어 강화', '저자극 진정 케어', '안티에이징 탄력', '피부 장벽 리페어', '글로우 광채'],
+      ingredients: ['히알루론산', '판테놀', '세라마이드', '나이아신아마이드', '시카(마데카소사이드)', '펩타이드', '베타글루칸', '스쿠알란']
+    },
+    haircare: {
+      concepts: ['손상모 리페어', '두피 밸런스 케어', '볼륨 앤 광택', '저자극 스캘프 케어', '데일리 영양 코팅'],
+      ingredients: ['케라틴', '판테놀', '비오틴', '티트리오일', '아르간오일', '카페인', '멘톨']
+    },
+    bodycare: {
+      concepts: ['보습 배리어 강화', '탄력 & 바디 케어', '저자극 유아동 겸용', '쿨링 애프터선', '데일리 영양 로션'],
+      ingredients: ['시어버터', '판테놀', '세라마이드', '알로에', '코코넛오일', '히알루론산']
+    },
+    makeup: {
+      concepts: ['롱래스팅 커버', '글로우 스킨핏', '저자극 노메이크업 메이크업', '멀티밸런싱 베이스'],
+      ingredients: ['히알루론산', '나이아신아마이드', '실리카파우더', 'SPF 성분(자외선 차단제)', '판테놀']
+    },
+    cleansing: {
+      concepts: ['저자극 약산성 클렌징', '모공 딥클렌징', '산뜻 워터리 클렌징', '데일리 순한 세정'],
+      ingredients: ['아미노산 계면활성제', '판테놀', '티트리오일', '살리실산(BHA)', '알로에']
+    },
+    derma: {
+      concepts: ['피부과학 기반 진정', '저자극 멀티밸런싱', '장벽강화 리페어', '트러블 케어 솔루션'],
+      ingredients: ['마데카소사이드', '판테놀', '세라마이드', '아젤라산', '병풀추출물', '나이아신아마이드']
+    }
+  };
+
+  var NONE_KEY = 'none';
+
+  function makeOptions(labels) {
+    return labels.map(function (l) { return { key: l, label: l }; });
+  }
+
+  function withNone(options) {
+    return [{ key: NONE_KEY, label: '선택 없음' }].concat(options);
+  }
+
+  var TYPE_DATA = {
+    skincare: withNone(makeOptions(['크림', '토너', '에센스', '세럼', '앰플', '미스트', '마스크팩'])),
+    haircare: withNone(makeOptions(['샴푸', '트리트먼트', '헤어팩', '헤어오일', '헤어토닉', '헤어에센스'])),
+    bodycare: withNone(makeOptions(['바디로션', '바디크림', '바디워시', '바디오일', '핸드크림'])),
+    makeup: withNone(makeOptions(['파운데이션', '쿠션/BB', '컨실러', '립틴트', '아이섀도'])),
+    cleansing: withNone(makeOptions(['폼클렌저', '클렌징오일', '클렌징워터', '클렌징밤', '립&아이리무버'])),
+    derma: withNone(makeOptions(['진정크림', '앰플', '토너', '스팟패치', '선크림']))
+  };
+
+  var TEXTURE_OPTIONS = withNone(makeOptions(['크리미', '젤', '워터리/리퀴드', '오일', '밀크', '무스/폼', '파우더', '밤']));
+  var FRAGRANCE_OPTIONS = withNone(makeOptions(['무향', '플로럴', '시트러스', '우디', '그린/허브', '파우더리', '프루티']));
+
+  var CONTAINER_OPTIONS = withNone([
+    { key: 'tube', label: '튜브' },
+    { key: 'pump', label: '펌프 용기' },
+    { key: 'jar', label: '자(jar)' },
+    { key: 'airless', label: '에어리스 펌프' },
+    { key: 'stick', label: '스틱형' },
+    { key: 'spray', label: '스프레이' },
+    { key: 'pouch', label: '파우치/리필' }
+  ]);
+
+  var COLOR_OPTIONS = [
+    { key: 'none', label: '선택 없음', hex: null },
+    { key: 'white', label: '화이트', hex: '#FFFFFF' },
+    { key: 'ivory', label: '아이보리', hex: '#F5F0E6' },
+    { key: 'beige', label: '베이지', hex: '#E3D5C0' },
+    { key: 'pink', label: '핑크', hex: '#F4C2C2' },
+    { key: 'green', label: '그린', hex: '#B8D8BA' },
+    { key: 'blue', label: '블루', hex: '#BFD7ED' },
+    { key: 'clear', label: '투명', hex: 'transparent' },
+    { key: 'gold', label: '골드', hex: '#D4AF37' }
+  ];
+
+  var CONTAINER_SHAPES = {
+    tube: { parts: [
+      { d: 'M20,34 Q20,30 24,30 L40,30 Q44,30 44,34 L44,74 Q44,80 38,80 L26,80 Q20,80 20,74 Z', type: 'main' },
+      { d: 'M24,30 L27,16 L37,16 L40,30 Z', type: 'main' },
+      { d: 'M25,16 L39,16 L39,8 Q39,6 37,6 L27,6 Q25,6 25,8 Z', type: 'cap' }
+    ]},
+    jar: { parts: [
+      { d: 'M14,38 L50,38 L50,70 Q50,78 42,78 L22,78 Q14,78 14,70 Z', type: 'main' },
+      { d: 'M12,26 L52,26 Q54,26 54,28 L54,36 Q54,38 52,38 L12,38 Q10,38 10,36 L10,28 Q10,26 12,26 Z', type: 'cap' }
+    ]},
+    pump: { parts: [
+      { d: 'M18,36 L46,36 L46,74 Q46,80 40,80 L24,80 Q18,80 18,74 Z', type: 'main' },
+      { d: 'M26,36 L26,22 L38,22 L38,36 Z', type: 'main' },
+      { d: 'M20,10 L44,10 Q46,10 46,12 L46,20 Q46,22 44,22 L20,22 Q18,22 18,20 L18,12 Q18,10 20,10 Z', type: 'cap' },
+      { d: 'M46,14 L58,12 L58,16 L46,18 Z', type: 'cap' }
+    ]},
+    airless: { parts: [
+      { d: 'M20,20 L44,20 L44,78 Q44,82 40,82 L24,82 Q20,82 20,78 Z', type: 'main' },
+      { d: 'M23,6 L41,6 Q43,6 43,8 L43,20 L21,20 L21,8 Q21,6 23,6 Z', type: 'cap' }
+    ]},
+    stick: { parts: [
+      { d: 'M26,20 L38,20 L38,78 Q38,82 34,82 L30,82 Q26,82 26,78 Z', type: 'main' },
+      { d: 'M24,6 L40,6 Q42,6 42,8 L42,20 L22,20 L22,8 Q22,6 24,6 Z', type: 'cap' }
+    ]},
+    spray: { parts: [
+      { d: 'M18,38 L44,38 L44,76 Q44,80 40,80 L22,80 Q18,80 18,76 Z', type: 'main' },
+      { d: 'M26,38 L26,24 L36,24 L36,38 Z', type: 'main' },
+      { d: 'M20,10 L42,10 Q44,10 44,12 L44,22 Q44,24 42,24 L20,24 Q18,24 18,22 L18,12 Q18,10 20,10 Z', type: 'cap' },
+      { d: 'M42,12 L56,4 L59,9 L45,18 Z', type: 'cap' }
+    ]},
+    pouch: { parts: [
+      { d: 'M12,30 Q8,58 18,72 Q30,84 46,72 Q56,58 52,30 Q46,16 32,18 Q18,16 12,30 Z', type: 'main' },
+      { d: 'M26,10 L38,10 Q40,10 40,12 L40,20 L24,20 L24,12 Q24,10 26,10 Z', type: 'cap' }
+    ]}
+  };
+
+  var INGREDIENT_EFFECTS = {
+    '히알루론산': '즉각적인 수분 공급과 표면 보습막 형성에 효과적입니다.',
+    '판테놀': '저자극 진정 작용과 피부 장벽 보호에 도움을 줍니다.',
+    '세라마이드': '피부 장벽을 강화하고 수분 손실을 방지합니다.',
+    '나이아신아마이드': '피부 톤 개선과 모공 케어에 활용됩니다.',
+    '시카(마데카소사이드)': '자극 완화와 트러블 케어에 효과적인 성분입니다.',
+    '펩타이드': '탄력 개선과 주름 케어를 보조합니다.',
+    '베타글루칸': '진정 작용과 면역 밸런스 보습에 도움을 줍니다.',
+    '스쿠알란': '유수분 밸런스를 맞춰 매끄러운 마무리감을 줍니다.',
+    '케라틴': '손상모의 결을 개선하고 큐티클을 케어합니다.',
+    '비오틴': '두피와 모발 건강 케어를 보조합니다.',
+    '티트리오일': '두피·피부 진정과 청량감을 부여합니다.',
+    '아르간오일': '모발에 윤기를 더하고 정전기를 방지합니다.',
+    '카페인': '두피 혈행 개선을 보조합니다.',
+    '멘톨': '즉각적인 쿨링감을 부여합니다.',
+    '시어버터': '고보습력과 유연한 피막을 형성합니다.',
+    '알로에': '수딩 효과와 산뜻한 보습감을 줍니다.',
+    '코코넛오일': '유연한 보습감과 부드러운 사용감을 더합니다.',
+    '실리카파우더': '피지를 컨트롤하고 매트한 마무리감을 줍니다.',
+    'SPF 성분(자외선 차단제)': '자외선 차단과 피부 보호 기능을 담당합니다.',
+    '아미노산 계면활성제': '저자극 세정과 세정 후 산뜻한 보습감을 줍니다.',
+    '살리실산(BHA)': '모공 속 각질 케어에 효과적입니다.',
+    '아젤라산': '피부 톤 개선과 트러블 케어에 활용됩니다.',
+    '병풀추출물': '피부 진정과 재생 케어를 보조합니다.'
+  };
+
+  var INSIGHT_POOL = {
+    skincare: [
+      '최근 스킨케어 시장은 "저자극+고기능"을 동시에 원하는 소비자가 늘면서, 성분 근거를 명확히 제시하는 브랜드에 대한 신뢰도가 구매 전환으로 이어지는 경향이 강해지고 있습니다.',
+      '피부 장벽·수분 배리어 관련 키워드에 대한 검색과 콘텐츠 소비가 꾸준히 늘고 있어, 관련 효능을 임상적으로 뒷받침하는 커뮤니케이션이 유효한 차별화 요소로 작동합니다.',
+      '무자극·저자극 클레임에 대한 소비자 피로도가 높아지면서, 구체적인 사용 시나리오(예민할 때, 환절기 등)를 제시하는 스토리텔링이 반응을 얻고 있습니다.',
+      'SNS·리뷰 채널에서는 사용감(발림성, 흡수력, 마무리감)에 대한 언급 비중이 효능 언급만큼 높아, 텍스처를 구체적으로 설명하는 것이 구매 결정에 직접적인 영향을 줍니다.'
+    ],
+    haircare: [
+      '탈모·두피 고민 인구가 늘면서 헤어케어 시장에서도 "기능성"에 대한 기대치가 높아지고, 한방·더마 성분에 대한 신뢰도가 구매 전환에 큰 영향을 미치고 있습니다.',
+      '두피 진정과 손상모 케어를 동시에 원하는 소비자가 많아, 세정력과 저자극을 함께 강조하는 포지셔닝이 유효합니다.',
+      '온라인 리뷰에서는 향과 잔여감(무거운 느낌)에 대한 언급이 많아, 사용 후 느낌을 구체적으로 전달하는 것이 차별화 포인트가 됩니다.',
+      '헤어 전문 성분(케라틴, 비오틴 등)에 대한 인지도가 높아지고 있어, 성분 스토리를 명확히 전달할수록 신뢰도가 올라갑니다.'
+    ],
+    bodycare: [
+      '바디케어 제품은 "패밀리 유즈(가족 전체 사용 가능)" 여부가 구매 결정에 큰 영향을 미치며, 저자극·유아동 겸용 클레임에 대한 관심이 높습니다.',
+      '보습력과 발림성(무거운 사용감 없음)을 동시에 원하는 소비자가 늘면서, 유수분 밸런스를 강조하는 메시지가 효과적입니다.',
+      '계절별 바디케어 니즈(여름철 애프터선, 겨울철 보습)가 뚜렷하게 나뉘어, 시즌 특화 컨셉이 반응을 얻고 있습니다.',
+      '향에 대한 민감도가 높아 무향·저자극 향 옵션에 대한 수요가 함께 커지고 있습니다.'
+    ],
+    makeup: [
+      '"노메이크업 메이크업" 트렌드가 이어지며 커버력과 스킨케어 성분을 동시에 강조하는 제품에 대한 선호가 높습니다.',
+      '지속력(롱래스팅)과 가벼운 사용감을 동시에 원하는 소비자가 많아, 두 가지를 함께 충족하는 포지셔닝이 유효합니다.',
+      '색조 제품에도 성분 안전성에 대한 질문이 늘고 있어, 저자극 성분을 함께 어필하는 것이 신뢰도를 높입니다.',
+      'SNS 튜토리얼 콘텐츠 소비가 늘면서, 실제 발림 결과를 구체적으로 설명하는 커뮤니케이션이 효과적입니다.'
+    ],
+    cleansing: [
+      '약산성·저자극 클렌징에 대한 수요가 꾸준히 늘고 있으며, 세정력과 순함을 동시에 증명하는 것이 핵심 과제입니다.',
+      '모공 관리에 대한 관심이 높아지면서, 클렌징 단계에서부터 모공 케어를 강조하는 포지셔닝이 반응을 얻고 있습니다.',
+      '클린뷰티·비건 성분에 대한 선호가 커지고 있어, 성분 리스트의 투명한 공개가 신뢰 형성에 중요합니다.',
+      '세안 후 당김/건조함에 대한 불만이 반복적으로 언급되어, 세정 후 보습 잔여감을 강조하는 메시지가 효과적입니다.'
+    ],
+    derma: [
+      '더마코스메틱 시장은 "임상적 근거"를 중요하게 여기는 소비자가 많아, 피부과학 기반 스토리텔링이 신뢰도를 높이는 핵심 요소입니다.',
+      '트러블·민감성 피부 고민이 있는 소비자는 저자극과 즉각적인 진정 효과를 동시에 기대합니다.',
+      '병원·약국 채널에서의 노출 경험이 브랜드 신뢰로 이어지는 경향이 있어, 전문성 있는 성분 커뮤니케이션이 유효합니다.',
+      '장기적인 피부 장벽 개선을 원하는 소비자가 늘면서, 단기 효과보다 지속 사용 관점의 메시지가 반응을 얻습니다.'
+    ]
+  };
+
+  var GAP_POOL = [
+    '기존 제품들이 효능 강조에 집중된 반면, 사용감·향·발림성 등 감각적 만족도에 대한 언급은 상대적으로 부족합니다.',
+    '성분 함량이나 근거 데이터를 구체적으로 공개하는 브랜드가 적어, 근거 기반 커뮤니케이션으로 신뢰를 선점할 수 있습니다.',
+    '가격대별 라인업은 다양하나, 특정 타겟(피부/두피 고민, 라이프스타일)에 맞춘 맞춤형 메시지는 부족한 편입니다.',
+    '온라인 후기에서 반복적으로 언급되는 불만(자극감, 무거운 사용감 등)을 정면으로 해결하는 포지셔닝이 상대적으로 드뭅니다.',
+    '패키징·용기의 편의성(휴대성, 위생성)에 대한 소비자 요구가 커지고 있으나, 이를 적극적으로 반영한 제품은 많지 않습니다.'
+  ];
+
+  var TAGLINE_TEMPLATES = [
+    function (theme, ingredient, typeLabel) { return theme + ', ' + ingredient + '로 증명합니다'; },
+    function (theme, ingredient, typeLabel) { return '매일 쓰는 ' + typeLabel + ', ' + ingredient + '로 달라지다'; },
+    function (theme, ingredient, typeLabel) { return ingredient + ' 한 방울로 완성하는 ' + theme; },
+    function (theme, ingredient, typeLabel) { return theme + ' — ' + typeLabel + '의 새로운 기준'; }
+  ];
+
+  var SELLING_POINT_ANGLES = [
+    function (ctx) { return ctx.ingredient + ' 성분의 함량·효능 근거를 전면에 내세운 "성분 주역형" 카피로 신뢰도를 소구할 수 있습니다.'; },
+    function (ctx) { return '"' + ctx.theme + '"를 짧은 한 줄 카피로 압축해, 최근 트렌드에 맞춘 감성 메시지로 활용할 수 있습니다.'; },
+    function (ctx) { return (ctx.textureLabel ? ctx.textureLabel + ' 제형의 사용감' : '데일리 사용감') + '을 구체적으로 묘사하는 후기형 카피로 감각적 만족도를 강조할 수 있습니다.'; },
+    function (ctx) { return '경쟁 제품이 채우지 못한 지점(' + ctx.gap + ')을 정면으로 비교하는 메시지로 차별화를 소구할 수 있습니다.'; },
+    function (ctx) { return ctx.targetPhraseShort + '을 겨냥한 맞춤형 언어로 공감대를 형성하는 방향으로 활용할 수 있습니다.'; }
+  ];
+
+  var POSITIONING_POOL = ['프레스티지 라인 포지셔닝', '매스 마켓 데일리 케어', '더마코스메틱 신뢰도 강조', '비건·클린뷰티 지향', '고기능성 프리미엄'];
+  var PRICE_POOL = ['1~2만원대', '2~3만원대', '3~5만원대', '5만원 이상 프리미엄'];
+  var DIFF_POOL = [
+    '핵심 성분 함량이 상대적으로 낮음 - 차별화 포인트로 활용 가능',
+    '패키징·사용감은 강점이나 성분 스토리텔링은 약한 편',
+    '가격 경쟁력은 높으나 임상 데이터가 부족함',
+    '브랜드 인지도는 높으나 최근 성분 트렌드 반영이 늦은 편',
+    '온라인 채널 반응은 좋으나 오프라인 접점이 약함'
+  ];
+
+  var SAMPLE_DATA = [
+    {
+      category: 'skincare',
+      types: ['크림', '에센스'],
+      textures: ['크리미'],
+      containers: ['jar'],
+      fragrances: ['무향'],
+      colors: ['white', 'beige'],
+      projectName: '수분 배리어 크림 리뉴얼',
+      brief: '30대 직장인 여성을 위한 저자극 수분 크림 라인업을 기획 중입니다. 민감성 피부에도 사용 가능한 진정 성분을 강조하고, 무향·무자극 컨셉으로 데일리 사용 가능한 제품을 원합니다.',
+      target: '25~34세 여성, 수도권 거주, 성분/효능 정보를 꼼꼼히 확인하는 스킨케어 관심층, 민감성 피부 고민',
+      competitor: '이니스프리 그린티 수분크림, 라네즈 워터뱅크 크림'
+    },
+    {
+      category: 'haircare',
+      types: ['샴푸', '트리트먼트'],
+      textures: ['워터리/리퀴드'],
+      containers: ['pump'],
+      fragrances: ['그린/허브'],
+      colors: ['green'],
+      projectName: '남성 두피 강화 샴푸 신규 개발',
+      brief: '탈모 고민이 있는 40대 남성 타겟의 두피 강화 샴푸를 개발하려고 합니다. 한방 성분과 두피 진정 효과를 강조하고, 저자극 세정력을 갖춘 제품을 원합니다.',
+      target: '40~55세 남성, 두피 트러블과 탈모 고민이 있는 소비자, 기능성 제품 선호',
+      competitor: '려 자양윤모 샴푸, 닥터방기원 홍삼 샴푸'
+    },
+    {
+      category: 'cleansing',
+      types: ['폼클렌저'],
+      textures: ['무스/폼'],
+      containers: ['pump'],
+      fragrances: ['시트러스'],
+      colors: ['blue', 'clear'],
+      projectName: '약산성 폼 클렌저 신규 라인',
+      brief: '20대 여성을 위한 약산성 폼 클렌저 라인을 준비 중입니다. 모공 관리와 저자극 세안을 동시에 강조하고, 클린뷰티 트렌드를 반영하고 싶습니다.',
+      target: '20~29세 여성, 클린뷰티·비건 성분에 관심 많은 소비자, SNS 정보 탐색 활발',
+      competitor: '센카 퍼펙트 휩 클렌징폼, 아이오페 바이오 에센스 인텐스 컨디셔닝'
+    }
+  ];
+
+  var sampleIndex = 0;
+  var currentCategory = CATEGORIES[0].key;
+  var currentTypes = [NONE_KEY];
+  var currentTextures = [NONE_KEY];
+  var currentContainers = [NONE_KEY];
+  var currentFragrances = [NONE_KEY];
+  var currentColors = [NONE_KEY];
+  var lastDraft = null;
+
+  var projectNameInput = document.getElementById('projectNameInput');
+  var briefInput = document.getElementById('briefInput');
+  var targetInput = document.getElementById('targetInput');
+  var competitorInput = document.getElementById('competitorInput');
+  var categoryPickerEl = document.getElementById('categoryPicker');
+  var typePickerEl = document.getElementById('typePicker');
+  var texturePickerEl = document.getElementById('texturePicker');
+  var containerPickerEl = document.getElementById('containerPicker');
+  var fragrancePickerEl = document.getElementById('fragrancePicker');
+  var colorPickerEl = document.getElementById('colorPicker');
+  var generateBtn = document.getElementById('generateBtn');
+  var generateBtnText = document.getElementById('generateBtnText');
+  var resultSection = document.getElementById('resultSection');
+  var emptyResult = document.getElementById('emptyResult');
+  var specCardEl = document.getElementById('specCard');
+  var conceptCardsEl = document.getElementById('conceptCards');
+  var personaCardEl = document.getElementById('personaCard');
+  var ingredientListEl = document.getElementById('ingredientList');
+  var compareTableEl = document.getElementById('compareTable');
+  var copyBtn = document.getElementById('copyBtn');
+  var reportBtn = document.getElementById('reportBtn');
+  var sampleBtn = document.getElementById('sampleBtn');
+  var cardTabBtn = document.getElementById('cardTabBtn');
+  var fullTabBtn = document.getElementById('fullTabBtn');
+  var cardViewEl = document.getElementById('cardView');
+  var fullTextViewEl = document.getElementById('fullTextView');
+  var fullTextArticleEl = document.getElementById('fullTextArticle');
+  var conceptSectionSubEl = document.getElementById('conceptSectionSub');
+  var toastHost = document.getElementById('toastHost');
+
+  function findLabel(options, key) {
+    var found = options.filter(function (o) { return o.key === key; })[0];
+    return found ? found.label : key;
+  }
+
+  function renderChipGroup(containerEl, options, currentKey, onSelect) {
+    containerEl.innerHTML = '';
+    options.forEach(function (opt) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (opt.key === currentKey ? ' active' : '');
+      chip.textContent = opt.label;
+      chip.addEventListener('click', function () { onSelect(opt.key); });
+      containerEl.appendChild(chip);
+    });
+  }
+
+  function toggleSelection(selectedArr, key) {
+    if (key === NONE_KEY) return [NONE_KEY];
+    var next = selectedArr.filter(function (k) { return k !== NONE_KEY; });
+    var idx = next.indexOf(key);
+    if (idx === -1) next.push(key); else next.splice(idx, 1);
+    return next.length ? next : [NONE_KEY];
+  }
+
+  function renderMultiChipGroup(containerEl, options, selectedArr, onToggle) {
+    containerEl.innerHTML = '';
+    options.forEach(function (opt) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (selectedArr.indexOf(opt.key) !== -1 ? ' active' : '');
+      chip.textContent = opt.label;
+      chip.addEventListener('click', function () { onToggle(opt.key); });
+      containerEl.appendChild(chip);
+    });
+  }
+
+  function renderCategoryPicker() {
+    renderChipGroup(categoryPickerEl, CATEGORIES, currentCategory, function (key) {
+      currentCategory = key;
+      currentTypes = [NONE_KEY];
+      renderCategoryPicker();
+      renderTypePicker();
+    });
+  }
+
+  function renderTypePicker() {
+    renderMultiChipGroup(typePickerEl, TYPE_DATA[currentCategory], currentTypes, function (key) {
+      currentTypes = toggleSelection(currentTypes, key);
+      renderTypePicker();
+    });
+  }
+
+  function renderTexturePicker() {
+    renderMultiChipGroup(texturePickerEl, TEXTURE_OPTIONS, currentTextures, function (key) {
+      currentTextures = toggleSelection(currentTextures, key);
+      renderTexturePicker();
+    });
+  }
+
+  function renderContainerPicker() {
+    renderMultiChipGroup(containerPickerEl, CONTAINER_OPTIONS, currentContainers, function (key) {
+      currentContainers = toggleSelection(currentContainers, key);
+      renderContainerPicker();
+    });
+  }
+
+  function renderFragrancePicker() {
+    renderMultiChipGroup(fragrancePickerEl, FRAGRANCE_OPTIONS, currentFragrances, function (key) {
+      currentFragrances = toggleSelection(currentFragrances, key);
+      renderFragrancePicker();
+    });
+  }
+
+  function renderColorPicker() {
+    colorPickerEl.innerHTML = '';
+    COLOR_OPTIONS.forEach(function (opt) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'color-chip' + (currentColors.indexOf(opt.key) !== -1 ? ' active' : '');
+
+      var isSwatchless = opt.key === 'clear' || opt.key === NONE_KEY;
+      var swatch = document.createElement('span');
+      swatch.className = 'color-swatch' + (isSwatchless ? ' clear' : '');
+      swatch.style.background = isSwatchless ? '#fff' : opt.hex;
+
+      var label = document.createElement('span');
+      label.textContent = opt.label;
+
+      chip.appendChild(swatch);
+      chip.appendChild(label);
+      chip.addEventListener('click', function () {
+        currentColors = toggleSelection(currentColors, opt.key);
+        renderColorPicker();
+      });
+      colorPickerEl.appendChild(chip);
+    });
+  }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function truncate(text, len) {
+    if (text.length <= len) return text;
+    return text.slice(0, len).trim() + '...';
+  }
+
+  function hexToRgb(hex) {
+    var h = hex.replace('#', '');
+    if (h.length === 3) h = h.split('').map(function (c) { return c + c; }).join('');
+    var num = parseInt(h, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  function rgbToHex(r, g, b) {
+    function c(v) {
+      v = Math.max(0, Math.min(255, Math.round(v)));
+      var s = v.toString(16);
+      return s.length === 1 ? '0' + s : s;
+    }
+    return '#' + c(r) + c(g) + c(b);
+  }
+
+  function shadeColor(hex, percent) {
+    if (hex === 'transparent') return hex;
+    var rgb = hexToRgb(hex);
+    var t = percent < 0 ? 0 : 255;
+    var p = Math.abs(percent);
+    return rgbToHex(
+      (t - rgb.r) * p + rgb.r,
+      (t - rgb.g) * p + rgb.g,
+      (t - rgb.b) * p + rgb.b
+    );
+  }
+
+  function buildContainerSVG(containerKey, hex) {
+    var shape = CONTAINER_SHAPES[containerKey] || CONTAINER_SHAPES.tube;
+    var isClear = hex === 'transparent';
+    var mainFill = isClear ? 'rgba(255,255,255,0.3)' : hex;
+    var capFill = '#CBD5E1';
+    var strokeColor = '#94A3B8';
+
+    var parts = shape.parts.map(function (p) {
+      var fill = p.type === 'cap' ? capFill : mainFill;
+      var dash = (isClear && p.type !== 'cap') ? ' stroke-dasharray="3 2"' : '';
+      return '<path d="' + p.d + '" fill="' + fill + '" stroke="' + strokeColor + '" stroke-width="1.6"' + dash + '/>';
+    }).join('');
+
+    return '<svg viewBox="0 0 64 84" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">' + parts + '</svg>';
+  }
+
+  function showToast(message) {
+    toastHost.innerHTML = '';
+    var toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toastHost.appendChild(toast);
+    setTimeout(function () {
+      if (toastHost.contains(toast)) toastHost.removeChild(toast);
+    }, 2000);
+  }
+
+  function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        resolve();
+      } catch (err) {
+        reject(err);
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    });
+  }
+
+  function buildConcepts(spec, catData, categoryKey, targetText) {
+    var themes = shuffle(catData.concepts).slice(0, 3);
+    var insightPool = INSIGHT_POOL[categoryKey] || [];
+    var insights = shuffle(insightPool).slice(0, 3);
+    var gaps = shuffle(GAP_POOL).slice(0, 3);
+    var typeForCopy = spec.typeHas ? spec.typeLabel : spec.catLabel;
+
+    var targetPhrase = targetText
+      ? ('타겟(' + truncate(targetText, 26) + ')의 관심사')
+      : (spec.catLabel + ' 타겟이 일반적으로 중요하게 여기는 지점');
+
+    return themes.map(function (theme, i) {
+      var ingredient = pick(catData.ingredients);
+      var gap = gaps[i] || pick(GAP_POOL);
+      var insight = insights[i] || pick(insightPool);
+
+      var oneLiner = theme + '을 핵심 가치로, ' + ingredient + ' 성분' +
+        (spec.textureHas ? '과 ' + spec.textureLabel + ' 제형' : '') +
+        '을 결합한 ' + typeForCopy + ' 제안입니다.';
+
+      var taglineFn = pick(TAGLINE_TEMPLATES);
+      var keyMessage = taglineFn(theme, ingredient, typeForCopy);
+
+      var rationale = '"' + spec.projectName + '" 브리프에서 강조한 요구사항과 ' + targetPhrase + '를 함께 고려했을 때, ' +
+        gap + ' 이 컨셉은 ' + ingredient + ' 성분과 ' + theme + ' 방향으로 이 공백을 보완하기 위해 제안합니다.';
+
+      var specParts = [];
+      if (spec.textureHas) specParts.push('제형 ' + spec.textureLabel);
+      if (spec.containerHas) specParts.push('용기 ' + spec.containerLabel);
+      if (spec.fragranceHas) specParts.push('향 ' + spec.fragranceLabel);
+      if (spec.colorHas) specParts.push('색상 ' + spec.colorLabel);
+      var specNote = specParts.length
+        ? (specParts.join(' · ') + ' 기준으로 반영했습니다.')
+        : '제형·용기·향·색상은 아직 미정으로, 추후 브리프 확정 시 반영할 예정입니다.';
+
+      var sellingPointCtx = {
+        ingredient: ingredient,
+        theme: theme,
+        gap: gap,
+        textureLabel: spec.textureHas ? spec.textureLabel : null,
+        targetPhraseShort: targetText ? truncate(targetText, 18) : (spec.catLabel + ' 타겟')
+      };
+      var sellingPoints = shuffle(SELLING_POINT_ANGLES).slice(0, 3).map(function (fn) { return fn(sellingPointCtx); });
+
+      return {
+        index: i + 1,
+        title: theme,
+        oneLiner: oneLiner,
+        keyMessage: keyMessage,
+        insight: insight,
+        rationale: rationale,
+        sellingPoints: sellingPoints,
+        specNote: specNote,
+        tags: [typeForCopy, ingredient]
+      };
+    });
+  }
+
+  function buildPersona(targetText, catLabel) {
+    var rows = [];
+    rows.push({ key: '카테고리', val: catLabel });
+    rows.push({ key: '타겟 요약', val: targetText || '브리프에 별도 타겟 정보가 입력되지 않았습니다.' });
+    rows.push({ key: '관심 포인트', val: '성분/효능 근거, 사용감, 가격 대비 만족도를 우선적으로 확인하는 경향' });
+    rows.push({ key: '메시지 톤', val: '과장된 표현보다 근거 중심의 담백하고 신뢰감 있는 톤 권장' });
+    return rows;
+  }
+
+  function summarizeSelection(options, selectedArr) {
+    var reals = selectedArr.filter(function (k) { return k !== NONE_KEY; });
+    if (!reals.length) return { label: '선택 안 함', hasSelection: false };
+    return { label: reals.map(function (k) { return findLabel(options, k); }).join(', '), hasSelection: true };
+  }
+
+  function buildSpec(projectName) {
+    var catLabel = findLabel(CATEGORIES, currentCategory);
+    var typeInfo = summarizeSelection(TYPE_DATA[currentCategory], currentTypes);
+    var textureInfo = summarizeSelection(TEXTURE_OPTIONS, currentTextures);
+    var containerInfo = summarizeSelection(CONTAINER_OPTIONS, currentContainers);
+    var fragranceInfo = summarizeSelection(FRAGRANCE_OPTIONS, currentFragrances);
+    var colorInfo = summarizeSelection(COLOR_OPTIONS, currentColors);
+
+    var realContainerKeys = currentContainers.filter(function (k) { return k !== NONE_KEY; });
+    var containerKeyForImage = realContainerKeys[0] || 'tube';
+
+    var realColorKeys = currentColors.filter(function (k) { return k !== NONE_KEY; });
+    var firstColorOpt = COLOR_OPTIONS.filter(function (o) { return o.key === realColorKeys[0]; })[0];
+    var colorHexForImage = firstColorOpt ? firstColorOpt.hex : 'transparent';
+
+    var resolvedProjectName = projectName || ((typeInfo.hasSelection ? typeInfo.label : catLabel) + ' 프로젝트');
+
+    var rows = [
+      { key: '프로젝트명', val: resolvedProjectName },
+      { key: '제품 종류', val: (typeInfo.hasSelection ? typeInfo.label : '선택 안 함') + ' · ' + catLabel },
+      { key: '제형', val: textureInfo.label },
+      { key: '용기', val: containerInfo.label },
+      { key: '향', val: fragranceInfo.label },
+      { key: '색상', val: colorInfo.label }
+    ];
+
+    return {
+      projectName: resolvedProjectName,
+      catLabel: catLabel,
+      typeLabel: typeInfo.label,
+      typeHas: typeInfo.hasSelection,
+      textureLabel: textureInfo.label,
+      textureHas: textureInfo.hasSelection,
+      containerLabel: containerInfo.label,
+      containerHas: containerInfo.hasSelection,
+      containerKey: containerKeyForImage,
+      fragranceLabel: fragranceInfo.label,
+      fragranceHas: fragranceInfo.hasSelection,
+      colorLabel: colorInfo.label,
+      colorHas: colorInfo.hasSelection,
+      colorHex: colorHexForImage,
+      rows: rows
+    };
+  }
+
+  function buildIngredients(catData) {
+    var picked = shuffle(catData.ingredients).slice(0, 5);
+    return picked.map(function (name) {
+      return { name: name, effect: INGREDIENT_EFFECTS[name] || '카테고리 특성에 맞는 보조 효능이 기대되는 성분입니다.' };
+    });
+  }
+
+  function buildCompareRows(competitorText) {
+    var names = (competitorText || '')
+      .split(',')
+      .map(function (s) { return s.trim(); })
+      .filter(Boolean);
+
+    while (names.length < 2) {
+      names.push('경쟁제품 ' + (names.length === 0 ? 'A' : 'B'));
+    }
+    names = names.slice(0, 3);
+
+    var rows = names.map(function (name) {
+      return {
+        name: name,
+        positioning: pick(POSITIONING_POOL),
+        price: pick(PRICE_POOL),
+        diff: pick(DIFF_POOL)
+      };
+    });
+
+    rows.push({ name: '우리 제품(안)', positioning: '브리프 기반 신규 포지셔닝', price: '경쟁 구간 내 확정 필요', diff: '컨셉 방향 3안 참고하여 차별화 메시지 확정', isOurs: true });
+
+    return rows;
+  }
+
+  function renderKeyValueList(el, rows) {
+    el.innerHTML = '';
+    rows.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'persona-row';
+
+      var key = document.createElement('span');
+      key.className = 'persona-key';
+      key.textContent = r.key;
+
+      var val = document.createElement('span');
+      val.className = 'persona-val';
+      val.textContent = r.val;
+
+      row.appendChild(key);
+      row.appendChild(val);
+      el.appendChild(row);
+    });
+  }
+
+  function renderSpecCard(spec) {
+    specCardEl.innerHTML = '';
+
+    var imgWrap = document.createElement('div');
+    imgWrap.className = 'spec-card-image';
+    imgWrap.innerHTML = buildContainerSVG(spec.containerKey, spec.colorHex);
+    specCardEl.appendChild(imgWrap);
+
+    var rowsWrap = document.createElement('div');
+    rowsWrap.className = 'spec-card-rows';
+    specCardEl.appendChild(rowsWrap);
+
+    renderKeyValueList(rowsWrap, spec.rows);
+  }
+
+  function renderConcepts(concepts, spec) {
+    conceptCardsEl.innerHTML = '';
+    var tints = [0, 0.2, -0.15];
+
+    concepts.forEach(function (c, idx) {
+      var card = document.createElement('div');
+      card.className = 'concept-card';
+
+      var imgWrap = document.createElement('div');
+      imgWrap.className = 'concept-card-image';
+      imgWrap.innerHTML = buildContainerSVG(spec.containerKey, shadeColor(spec.colorHex, tints[idx] || 0));
+      card.appendChild(imgWrap);
+
+      var body = document.createElement('div');
+      body.className = 'concept-card-body';
+
+      var header = document.createElement('div');
+      header.className = 'concept-card-header';
+
+      var index = document.createElement('span');
+      index.className = 'concept-index';
+      index.textContent = '컨셉 ' + c.index;
+
+      var title = document.createElement('span');
+      title.className = 'concept-title';
+      title.textContent = c.title;
+
+      header.appendChild(index);
+      header.appendChild(title);
+      body.appendChild(header);
+
+      var oneLiner = document.createElement('div');
+      oneLiner.className = 'concept-oneliner';
+      oneLiner.textContent = c.oneLiner;
+      body.appendChild(oneLiner);
+
+      var copy = document.createElement('div');
+      copy.className = 'concept-copy';
+      copy.textContent = '"' + c.keyMessage + '"';
+      body.appendChild(copy);
+
+      function addSubSection(labelText, text) {
+        var lbl = document.createElement('div');
+        lbl.className = 'concept-sub-label';
+        lbl.textContent = labelText;
+        var txt = document.createElement('div');
+        txt.className = 'concept-sub-text';
+        txt.textContent = text;
+        body.appendChild(lbl);
+        body.appendChild(txt);
+      }
+
+      addSubSection('인사이트', c.insight);
+      addSubSection('제안 이유', c.rationale);
+
+      var sellingLbl = document.createElement('div');
+      sellingLbl.className = 'concept-sub-label';
+      sellingLbl.textContent = '마케팅 소구점';
+      body.appendChild(sellingLbl);
+
+      var sellingList = document.createElement('ul');
+      sellingList.className = 'concept-selling-list';
+      c.sellingPoints.forEach(function (point) {
+        var li = document.createElement('li');
+        li.textContent = point;
+        sellingList.appendChild(li);
+      });
+      body.appendChild(sellingList);
+
+      var tags = document.createElement('div');
+      tags.className = 'concept-tags';
+      c.tags.forEach(function (t) {
+        var tag = document.createElement('span');
+        tag.className = 'concept-tag';
+        tag.textContent = t;
+        tags.appendChild(tag);
+      });
+      body.appendChild(tags);
+
+      var specNote = document.createElement('div');
+      specNote.className = 'concept-spec-note';
+      specNote.textContent = c.specNote;
+      body.appendChild(specNote);
+
+      card.appendChild(body);
+      conceptCardsEl.appendChild(card);
+    });
+  }
+
+  function renderIngredients(list) {
+    ingredientListEl.innerHTML = '';
+    list.forEach(function (ing) {
+      var li = document.createElement('li');
+      li.className = 'ingredient-item';
+
+      var dot = document.createElement('span');
+      dot.className = 'ingredient-dot';
+
+      var textWrap = document.createElement('div');
+
+      var name = document.createElement('div');
+      name.className = 'ingredient-name';
+      name.textContent = ing.name;
+
+      var effect = document.createElement('div');
+      effect.className = 'ingredient-effect';
+      effect.textContent = ing.effect;
+
+      textWrap.appendChild(name);
+      textWrap.appendChild(effect);
+
+      li.appendChild(dot);
+      li.appendChild(textWrap);
+      ingredientListEl.appendChild(li);
+    });
+  }
+
+  function renderCompareTable(rows) {
+    compareTableEl.innerHTML = '';
+
+    var thead = document.createElement('thead');
+    var headRow = document.createElement('tr');
+    ['제품명', '포지셔닝', '가격대(추정)', '차별화 포인트'].forEach(function (h) {
+      var th = document.createElement('th');
+      th.textContent = h;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    compareTableEl.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    rows.forEach(function (r) {
+      var tr = document.createElement('tr');
+      if (r.isOurs) tr.className = 'our-row';
+
+      var nameTd = document.createElement('td');
+      if (r.isOurs) nameTd.className = 'our-row-cell';
+      nameTd.textContent = r.name;
+
+      var posTd = document.createElement('td');
+      posTd.textContent = r.positioning;
+
+      var priceTd = document.createElement('td');
+      priceTd.textContent = r.price;
+
+      var diffTd = document.createElement('td');
+      diffTd.textContent = r.diff;
+
+      tr.appendChild(nameTd);
+      tr.appendChild(posTd);
+      tr.appendChild(priceTd);
+      tr.appendChild(diffTd);
+      tbody.appendChild(tr);
+    });
+    compareTableEl.appendChild(tbody);
+  }
+
+  function renderFullText(draft) {
+    fullTextArticleEl.innerHTML = '';
+
+    function addHeading(text) {
+      var h = document.createElement('h3');
+      h.textContent = text;
+      fullTextArticleEl.appendChild(h);
+    }
+    function addPara(text) {
+      var p = document.createElement('p');
+      p.textContent = text;
+      fullTextArticleEl.appendChild(p);
+    }
+
+    addHeading('개요');
+    addPara('"' + draft.spec.projectName + '" 프로젝트는 ' + draft.spec.catLabel + ' 카테고리의 ' + draft.spec.typeLabel + ' 제품 기획 브리프를 기반으로 제안서 초안을 정리했습니다. 제형은 ' +
+      draft.spec.textureLabel + ', 용기는 ' + draft.spec.containerLabel + ', 향은 ' + draft.spec.fragranceLabel + ', 색상은 ' +
+      draft.spec.colorLabel + ' 컨셉으로 검토했습니다.');
+    addPara('고객사가 전달한 브리프 원문은 다음과 같습니다. "' + draft.briefText + '"');
+
+    addHeading('타겟 페르소나');
+    addPara((draft.targetText ? draft.targetText : '브리프에 별도 타겟 정보가 명시되지 않아 카테고리 특성을 기준으로 추정했습니다.') +
+      ' 이 타겟은 성분과 효능 근거를 우선적으로 확인하고, 사용감과 가격 대비 만족도를 중요하게 여기는 경향을 보입니다. 메시지는 과장된 표현보다 근거 중심의 담백하고 신뢰감 있는 톤을 권장합니다.');
+
+    addHeading('컨셉 방향 3안');
+    draft.concepts.forEach(function (c) {
+      addPara('컨셉 ' + c.index + '. ' + c.title + ' — ' + c.oneLiner);
+      addPara('제안 카피: "' + c.keyMessage + '"');
+      addPara('인사이트: ' + c.insight);
+      addPara('제안 이유: ' + c.rationale);
+      addPara('스펙 반영: ' + c.specNote);
+    });
+
+    addHeading('추천 핵심성분');
+    var ingNames = draft.ingredients.map(function (i) { return i.name; }).join(', ');
+    var ingSentence = draft.ingredients.map(function (ing) { return ing.name + '은 ' + ing.effect; }).join(' ');
+    addPara('검토 대상 핵심성분은 ' + ingNames + '입니다. ' + ingSentence);
+
+    addHeading('경쟁제품 비교');
+    var compSentence = draft.compareRows.map(function (r) {
+      return r.name + '은 ' + r.positioning + ', ' + r.price + ' 가격대이며, ' + r.diff + '.';
+    }).join(' ');
+    addPara(compSentence);
+
+    addHeading('참고');
+    addPara('본 초안은 브리프 입력값을 기반으로 자동 생성된 참고용 자료이며, 실제 성분·가격·경쟁 데이터는 별도 확인이 필요합니다.');
+  }
+
+  function draftToText(draft) {
+    var lines = [];
+    lines.push(draft.spec.projectName + ' - 제안서 초안');
+    lines.push('카테고리: ' + draft.spec.catLabel);
+    lines.push('제품 스펙: ' + draft.spec.typeLabel + ' · 제형 ' + draft.spec.textureLabel + ' · 용기 ' + draft.spec.containerLabel + ' · 향 ' + draft.spec.fragranceLabel + ' · 색상 ' + draft.spec.colorLabel);
+    lines.push('');
+    lines.push('[컨셉 방향 3안]');
+    draft.concepts.forEach(function (c) {
+      lines.push('- 컨셉 ' + c.index + ' | ' + c.title);
+      lines.push('  한줄 정의: ' + c.oneLiner);
+      lines.push('  제안 카피: "' + c.keyMessage + '"');
+      lines.push('  인사이트: ' + c.insight);
+      lines.push('  제안 이유: ' + c.rationale);
+      lines.push('  스펙 반영: ' + c.specNote);
+    });
+    lines.push('');
+    lines.push('[타겟 페르소나 요약]');
+    draft.persona.forEach(function (r) {
+      lines.push('- ' + r.key + ': ' + r.val);
+    });
+    lines.push('');
+    lines.push('[추천 핵심성분]');
+    draft.ingredients.forEach(function (ing) {
+      lines.push('- ' + ing.name + ': ' + ing.effect);
+    });
+    lines.push('');
+    lines.push('[경쟁제품 비교표]');
+    draft.compareRows.forEach(function (r) {
+      lines.push('- ' + r.name + ' | ' + r.positioning + ' | ' + r.price + ' | ' + r.diff);
+    });
+    lines.push('');
+    lines.push('* 본 초안은 브리프 입력값을 기반으로 자동 생성된 참고용 자료이며, 실제 성분/가격/경쟁 데이터는 별도 확인이 필요합니다.');
+    return lines.join('\n');
+  }
+
+  function switchResultView(view) {
+    cardTabBtn.classList.toggle('active', view === 'card');
+    fullTabBtn.classList.toggle('active', view === 'full');
+    cardViewEl.style.display = view === 'card' ? '' : 'none';
+    fullTextViewEl.style.display = view === 'full' ? '' : 'none';
+  }
+
+  function handleGenerate() {
+    var projectName = projectNameInput.value.trim();
+    var briefText = briefInput.value.trim();
+    var targetText = targetInput.value.trim();
+    var competitorText = competitorInput.value.trim();
+
+    if (!briefText) {
+      showToast('브리프 원문을 입력해주세요');
+      briefInput.focus();
+      return;
+    }
+
+    var categoryKeyAtGenerate = currentCategory;
+    var catData = CATEGORY_DATA[categoryKeyAtGenerate];
+    var spec = buildSpec(projectName);
+
+    generateBtn.disabled = true;
+    generateBtnText.innerHTML = '';
+    var spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    generateBtnText.appendChild(spinner);
+    generateBtnText.appendChild(document.createTextNode(' 초안 생성 중...'));
+
+    setTimeout(function () {
+      var draft = {
+        briefText: briefText,
+        targetText: targetText,
+        spec: spec,
+        concepts: buildConcepts(spec, catData, categoryKeyAtGenerate, targetText),
+        persona: buildPersona(targetText, spec.catLabel),
+        ingredients: buildIngredients(catData),
+        compareRows: buildCompareRows(competitorText)
+      };
+
+      lastDraft = draft;
+
+      conceptSectionSubEl.textContent = '"' + spec.projectName + '" 프로젝트의 브리프와 타겟, 제품 스펙을 반영한 컨셉 초안입니다. 내부 리뷰 후 확정해 주세요.';
+
+      renderSpecCard(spec);
+      renderConcepts(draft.concepts, spec);
+      renderKeyValueList(personaCardEl, draft.persona);
+      renderIngredients(draft.ingredients);
+      renderCompareTable(draft.compareRows);
+      renderFullText(draft);
+
+      emptyResult.style.display = 'none';
+      resultSection.style.display = '';
+
+      generateBtn.disabled = false;
+      generateBtnText.textContent = '제안서 초안 다시 생성';
+
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 900);
+  }
+
+  function handleCopy() {
+    if (!lastDraft) return;
+    copyTextToClipboard(draftToText(lastDraft))
+      .then(function () { showToast('클립보드에 복사되었습니다'); })
+      .catch(function () { showToast('복사에 실패했습니다'); });
+  }
+
+  function escapeHtml(str) {
+    var map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return String(str).replace(/[&<>"']/g, function (ch) { return map[ch]; });
+  }
+
+  var REPORT_CSS =
+    'body{margin:0;background:#F8FAFC;color:#1E293B;font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Segoe UI",Roboto,"Malgun Gothic",sans-serif;}' +
+    '.r-toolbar{position:sticky;top:0;background:#0F172A;padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;z-index:10;}' +
+    '.r-toolbar button{border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;}' +
+    '.r-toolbar button:first-child{background:#fff;color:#0F172A;}' +
+    '.r-toolbar button:last-child{background:transparent;color:#CBD5E1;border:1.5px solid #475569;}' +
+    '.r-page{max-width:760px;margin:0 auto;padding:36px 40px 60px;background:#fff;}' +
+    '.r-header{border-bottom:2px solid #0F172A;padding-bottom:16px;margin-bottom:28px;}' +
+    '.r-logo{font-size:12px;font-weight:700;letter-spacing:0.06em;color:#A78D6D;text-transform:uppercase;}' +
+    '.r-header h1{margin:6px 0 4px;font-size:24px;color:#0F172A;}' +
+    '.r-header p{margin:0;font-size:13.5px;color:#64748B;}' +
+    'section{margin-bottom:26px;}' +
+    'section h2{font-size:15.5px;font-weight:700;color:#0F172A;margin:0 0 12px;border-left:3px solid #A78D6D;padding-left:10px;}' +
+    '.r-spec{display:flex;gap:20px;align-items:flex-start;}' +
+    '.r-spec-image{flex:0 0 80px;width:80px;height:100px;}' +
+    '.r-spec-image svg{display:block;width:100%;height:100%;}' +
+    '.r-table{width:100%;border-collapse:collapse;font-size:13px;}' +
+    '.r-table th,.r-table td{text-align:left;padding:8px 10px;border-bottom:1px solid #E2E8F0;line-height:1.5;}' +
+    '.r-table th{color:#94A3B8;font-weight:700;width:120px;white-space:nowrap;}' +
+    '.r-compare th{width:auto;background:#F8FAFC;color:#94A3B8;font-size:11.5px;}' +
+    'tr.r-our{background:rgba(15,23,42,0.06);font-weight:700;}' +
+    '.r-quote{font-size:13.5px;line-height:1.7;color:#1E293B;background:#F8FAFC;border-radius:10px;padding:14px 16px;}' +
+    '.r-concept{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed #E2E8F0;}' +
+    '.r-concept:last-child{border-bottom:none;}' +
+    '.r-concept-title{font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px;}' +
+    '.r-concept p{margin:0 0 6px;font-size:13.5px;line-height:1.7;color:#1E293B;}' +
+    '.r-oneliner{font-weight:600;}' +
+    '.r-copy{font-style:italic;color:#A78D6D;}' +
+    '.r-specnote{font-size:12px;color:#94A3B8;}' +
+    '.r-ingredients{list-style:none;margin:0;padding:0;font-size:13.5px;line-height:1.8;}' +
+    '.r-ingredients li{padding:6px 0;border-bottom:1px dashed #E2E8F0;}' +
+    '.r-ingredients li:last-child{border-bottom:none;}' +
+    '.r-disclaimer{font-size:11.5px;color:#94A3B8;line-height:1.6;}' +
+    '@media print{.r-toolbar{display:none;}.r-page{padding:0;}}';
+
+  function buildReportHtml(draft) {
+    var conceptsHtml = draft.concepts.map(function (c) {
+      return '<div class="r-concept"><div class="r-concept-title">컨셉 ' + c.index + '. ' + escapeHtml(c.title) + '</div>' +
+        '<p class="r-oneliner">' + escapeHtml(c.oneLiner) + '</p>' +
+        '<p class="r-copy">"' + escapeHtml(c.keyMessage) + '"</p>' +
+        '<p><strong>인사이트</strong> ' + escapeHtml(c.insight) + '</p>' +
+        '<p><strong>제안 이유</strong> ' + escapeHtml(c.rationale) + '</p>' +
+        '<p class="r-specnote">' + escapeHtml(c.specNote) + '</p></div>';
+    }).join('');
+
+    var specHtml = draft.spec.rows.map(function (r) {
+      return '<tr><th>' + escapeHtml(r.key) + '</th><td>' + escapeHtml(r.val) + '</td></tr>';
+    }).join('');
+
+    var personaHtml = draft.persona.map(function (r) {
+      return '<tr><th>' + escapeHtml(r.key) + '</th><td>' + escapeHtml(r.val) + '</td></tr>';
+    }).join('');
+
+    var ingredientsHtml = draft.ingredients.map(function (ing) {
+      return '<li><strong>' + escapeHtml(ing.name) + '</strong> — ' + escapeHtml(ing.effect) + '</li>';
+    }).join('');
+
+    var compareRowsHtml = draft.compareRows.map(function (r) {
+      return '<tr' + (r.isOurs ? ' class="r-our"' : '') + '><td>' + escapeHtml(r.name) + '</td><td>' + escapeHtml(r.positioning) +
+        '</td><td>' + escapeHtml(r.price) + '</td><td>' + escapeHtml(r.diff) + '</td></tr>';
+    }).join('');
+
+    var imageSvg = buildContainerSVG(draft.spec.containerKey, draft.spec.colorHex);
+
+    return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+      '<title>' + escapeHtml(draft.spec.projectName) + ' - 제안서 초안</title><style>' + REPORT_CSS + '</style></head><body>' +
+      '<div class="r-toolbar"><button onclick="window.print()">인쇄 / PDF로 저장</button><button onclick="window.close()">닫기</button></div>' +
+      '<div class="r-page">' +
+      '<header class="r-header"><div class="r-logo">BriefDraft</div><h1>' + escapeHtml(draft.spec.projectName) + '</h1><p>' + escapeHtml(draft.spec.catLabel) + ' · ' + escapeHtml(draft.spec.typeLabel) + ' 제안서 초안</p></header>' +
+      '<section><h2>제품 스펙</h2><div class="r-spec"><div class="r-spec-image">' + imageSvg + '</div><table class="r-table">' + specHtml + '</table></div></section>' +
+      '<section><h2>브리프 원문</h2><p class="r-quote">' + escapeHtml(draft.briefText) + '</p></section>' +
+      '<section><h2>컨셉 방향 3안</h2>' + conceptsHtml + '</section>' +
+      '<section><h2>타겟 페르소나 요약</h2><table class="r-table">' + personaHtml + '</table></section>' +
+      '<section><h2>추천 핵심성분</h2><ul class="r-ingredients">' + ingredientsHtml + '</ul></section>' +
+      '<section><h2>경쟁제품 비교표</h2><table class="r-table r-compare"><thead><tr><th>제품명</th><th>포지셔닝</th><th>가격대</th><th>차별화 포인트</th></tr></thead><tbody>' + compareRowsHtml + '</tbody></table></section>' +
+      '<p class="r-disclaimer">* 본 초안은 브리프 입력값을 기반으로 자동 생성된 참고용 자료이며, 실제 성분·가격·경쟁 데이터는 별도 확인이 필요합니다.</p>' +
+      '</div></body></html>';
+  }
+
+  function handleViewReport() {
+    if (!lastDraft) return;
+    var html = buildReportHtml(lastDraft);
+    var blob = new Blob([html], { type: 'text/html' });
+    var url = URL.createObjectURL(blob);
+    var win = window.open(url, '_blank');
+    if (!win) {
+      showToast('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');
+      URL.revokeObjectURL(url);
+      return;
+    }
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+
+  function handleFillSample() {
+    var sample = SAMPLE_DATA[sampleIndex % SAMPLE_DATA.length];
+    sampleIndex++;
+
+    projectNameInput.value = sample.projectName;
+    briefInput.value = sample.brief;
+    targetInput.value = sample.target;
+    competitorInput.value = sample.competitor;
+
+    currentCategory = sample.category;
+    currentTypes = sample.types;
+    currentTextures = sample.textures;
+    currentContainers = sample.containers;
+    currentFragrances = sample.fragrances;
+    currentColors = sample.colors;
+
+    renderCategoryPicker();
+    renderTypePicker();
+    renderTexturePicker();
+    renderContainerPicker();
+    renderFragrancePicker();
+    renderColorPicker();
+
+    showToast('샘플 데이터를 불러왔습니다');
+  }
+
+  generateBtn.addEventListener('click', handleGenerate);
+  copyBtn.addEventListener('click', handleCopy);
+  reportBtn.addEventListener('click', handleViewReport);
+  sampleBtn.addEventListener('click', handleFillSample);
+  cardTabBtn.addEventListener('click', function () { switchResultView('card'); });
+  fullTabBtn.addEventListener('click', function () { switchResultView('full'); });
+
+  renderCategoryPicker();
+  renderTypePicker();
+  renderTexturePicker();
+  renderContainerPicker();
+  renderFragrancePicker();
+  renderColorPicker();
+</script>
+</body>
+</html>
