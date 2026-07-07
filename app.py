@@ -35,4 +35,4 @@ html_content = HTML_PATH.read_text(encoding="utf-8")
 
 # 이 앱은 순수 프론트엔드(JS)로 동작하는 정적 페이지이므로
 # components.html로 그대로 렌더링합니다. (백엔드 API 호출 없음)
-components.html(html_content, height=1400, scrolling=True)
+components.html(html_content, height=2200, scrolling=True)

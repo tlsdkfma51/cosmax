@@ -356,8 +356,79 @@
 
   .concept-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .hero-banner {
+    position: relative;
+    margin-top: 18px;
+    min-height: 120px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--main) 0%, var(--main-dark) 55%, var(--accent) 140%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 20px;
+  }
+
+  .hero-banner::before,
+  .hero-banner::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-banner::before {
+    width: 180px;
+    height: 180px;
+    top: -80px;
+    right: -50px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .hero-banner::after {
+    width: 130px;
+    height: 130px;
+    bottom: -70px;
+    left: 10%;
+    background: rgba(167, 141, 109, 0.35);
+  }
+
+  .hero-banner-flow {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-step {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    padding: 7px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .hero-arrow {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .hero-banner { padding: 14px 12px; }
+    .hero-banner-flow { gap: 6px; }
+    .hero-step { font-size: 12px; padding: 6px 10px; }
   }
 
   .concept-card {
@@ -685,6 +756,17 @@
         <h1><span class="logo-primary">Brief</span><span class="logo-secondary">Draft</span></h1>
       </div>
       <p class="tagline">고객사 브리프를 입력하면 컨셉·타겟·핵심성분·경쟁제품 비교가 담긴 제안서 초안을 자동으로 만들어 드립니다.</p>
+      <div class="hero-banner" aria-hidden="true">
+        <div class="hero-banner-flow">
+          <span class="hero-step">브리프</span>
+          <span class="hero-arrow">→</span>
+          <span class="hero-step">컨셉·타겟</span>
+          <span class="hero-arrow">→</span>
+          <span class="hero-step">핵심성분·경쟁 비교</span>
+          <span class="hero-arrow">→</span>
+          <span class="hero-step">제안서 초안</span>
+        </div>
+      </div>
     </header>
 
     <div class="layout">
